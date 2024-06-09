@@ -1,66 +1,35 @@
-## Foundry
+# SwapBot
+## The Problem
+When exchanging tokens via a Uniswap v3 pool, discrepancies between price feeds provided by Chainlink and the pool can result in users receiving a different amount of tokens than expected. This mismatch can lead to a loss in value for the user.
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+## The Solution
+SwapBot is a bot designed to align the Uniswap v3 pool price with the Chainlink price feed.
 
-Foundry consists of:
+## How it Works
+1. The user initiates a swap from token A to token B.
+2. SwapBot compares the price from the Chainlink price feed with the price in the Uniswap v3 pool.
+3. If the Chainlink price feed indicates a higher price for token A than the Uniswap v3 pool:
+    - SwapBot makes a swap in the pool, supplying token B to increase the price of token A until it matches the Chainlink price feed.
+    - Mathematical Model:
+        - Let `L` be the liquidity of the pool in a certain tick range, where the price belogs.
+        - Let `P` be the price of token A in terms of token B in the pool.
+        - Let `ΔY` be the amount of token B to be supplied to the pool.<p>
+        Then, `L = ΔY / Δ√P` [[6.7](https://uniswap.org/whitepaper-v3.pdf)], which gives, <br>
+        `ΔY = L * Δ√P`<p>
+        Similarly, `ΔX = Δ(1/√P) * L`
+4. The user's swap is then executed at the adjusted price.
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+## Additional Ideas
+To avoid using its own funds, SwapBot can utilize flash loans to temporarily acquire the necessary tokens for manipulating the pool.
 
-## Documentation
+## Notes
+- There will be a slight difference in price feeds due to uniswap pool's fee, as well as the actual swap.
+- This bot hasn't been tested for cross-tick swaps.
 
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
-
-```shell
-$ forge build
-```
-
-### Test
-
-```shell
-$ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+## Running tests
+```bash
+git clone https://github.com/ericselvig/swapbot.git
+cd swapbot
+npm i
+forge test
 ```
