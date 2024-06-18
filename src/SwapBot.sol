@@ -104,6 +104,7 @@ contract SwapBot {
                     amountOutMinimum: 0,
                     sqrtPriceLimitX96: 0
                 });
+            router.exactInputSingle(params);
         }
     }
 }
